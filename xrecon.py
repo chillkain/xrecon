@@ -72,6 +72,7 @@ def create_folders(ip):
         path_ip = path_workdir / f"{ip}"
         path_ip_scan= path_ip / "scans"
         path_ip_exploit= path_ip / "exploit"
+        path_ip_loot= path_ip / "loot"
         now = now.strftime("%d.%m.%Y..%H.%M")
         path_ip_scan_now = path_ip / f"scans_{now}"
         # if ip directory already exists 
@@ -89,6 +90,7 @@ def create_folders(ip):
             path_ip.mkdir()
             path_ip_scan.mkdir()
             path_ip_exploit.mkdir()
+            path_ip_loot.mkdir()
 
     except Exception as e:
         logger.fail(f'{bred} Failed to make folder structure: {e}')
@@ -126,10 +128,13 @@ def service_scanner_tcp(ip,future):
             if("http" in service_on_port):
                 async_jobs_http = webrecon.http_scan_all(procPool,ip,port)
                 async_jobs+=async_jobs_http
+            if("ssh" in service_on_port):
+                async_jobs_ssh = webrecon.ssh_scan_all(procPool,ip,port)
+                async_jobs+=async_jobs_ssh
             elif("ftp" in service_on_port ):
                 async_jobs_ftp = ftprecon.ftp_scan_all(procPool,ip,port)
                 async_jobs+=async_jobs_ftp
-            elif("netbios-ssn" in service_on_port or "microsoft-ds" in service_on_port):
+            elif("netbios-ssn" in service_on_port or "microsoft-ds" in service_on_port or "samba" in service_on_port):
                 async_jobs_smb = smbrecon.smb_scan_all(procPool,ip,port)
                 async_jobs+=async_jobs_smb
             elif("smtp" in service_on_port):
@@ -140,12 +145,12 @@ def service_scanner_tcp(ip,future):
                 async_jobs+=async_jobs_mysql
             elif("pop" in service_on_port):
                 async_jobs_pop3 = pop3recon.pop3_scan_all(procPool,ip,port)
-                async_jobs+=async_jobs_mysql
+                async_jobs+=async_jobs_pop3
             else:
                 logger.warn('no recon scripts found for {bred}{service_on_port}{rst} on {byellow}{ip}{rst} port {byellow}{port}{rst}')
 
     except Exception as e:
-        logger.error('Failed to {bgreen}parse nmap TCP results{rst} for {byellow}{ip}{rst}')
+        logger.error('Failed to {bgreen} start all TCP service scans {rst} for {byellow}{ip}{rst}, error={e}')
     
     
 
@@ -176,6 +181,7 @@ def service_scanner_udp(ip,future):
 # performs nmap scan and when ready activates the different modules for the open ports
 def nmapScan_TCP(ip):
     nmap_tcp = f"nmap -sV -Pn -T4 -p- {ip} -oA {ip}/scans/nmap_TCP_{ip}"
+    # nmap_tcp = f"nmap -sV -Pn -T4 --top-ports=10 {ip} -oA {ip}/scans/nmap_TCP_{ip}"
     logger.info('Started {bgreen}nmap TCP scans{rst} on {byellow}{ip}{rst}' + (' with {bblue}{nmap_tcp}{rst}' if logger.get_verbosity() >= 1 else ''))
     #execute the TCP nmap command, supress the output (is synchronous execution, no new processes are made)
     subprocess.call(nmap_tcp,shell=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)

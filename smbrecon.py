@@ -27,7 +27,7 @@ def smb_scan_all(pool,ip,port):
 def smb_nmap(ip,port):
     smblogger.debug('Started {bgreen}smb nmap scan{rst} for {byellow}{ip}{rst} port {byellow}{port}{rst}')
     # only the safe scripts to avoid crashes of the system, vuln scans should be done manually
-    command=f"nmap -sV -Pn -sC -p {port} -o {port}_nmap_smb {ip}"
+    command=f"nmap -sV -Pn --script=smb-brute,smb-double-pulsar-backdoor,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-services,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-ls,smb-mbenum,smb-os-discovery,smb-protocols,smb-psexec,smb-system-info,smb-security-mode -p {port} -o {port}_nmap_smb {ip}"
     subprocess.run(command,shell=True, cwd=f"{ip}/scans", stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL, check=True)
     smblogger.debug('Finished {bgreen}smb nmap scan{rst} for {byellow}{ip}{rst} port {byellow}{port}{rst}')
 

@@ -39,7 +39,7 @@ def http_scan_all(pool,ip,port):
 
 def http_nmap(ip,port):
     httplogger.debug('Started {bgreen}http nmap scan{rst} for {byellow}{ip}{rst} port {byellow}{port}{rst}')
-    command=f"nmap -sV -Pn --script=http* -p {port} -o {port}_nmap_http {ip}"
+    command=f"nmap -sV -Pn --script='banner,(http* or ssl*) and not (brute or broadcast or dos or external or http-slowloris* or fuzzer)' -p {port} -o {port}_nmap_http {ip}"
     subprocess.run(command,shell=True, cwd=f"{ip}/scans", stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL, check=True)
     httplogger.debug('Finished {bgreen}http nmap scan{rst} for {byellow}{ip}{rst} port {byellow}{port}{rst}')
 
@@ -69,7 +69,7 @@ def http_davtest(ip,port):
 
 def http_dir_brute(ip,port):
     httplogger.debug('Started {bgreen}directory brute force{rst} for {byellow}{ip}{rst} port {byellow}{port}{rst}')
-    command=f"gobuster dir -u {ip}:{port} -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -k -t 100 -x php,txt,cgi,sh,pl,py -s '200,204,301,302,307,403,500' | tee {port}_gobuster.log"
+    command=f"gobuster dir -u http://{ip}:{port} -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -k -t 100 -x php,txt,cgi,sh,pl,py -s '200,204,301,302,307,403,500' | tee {port}_gobuster.log"
     subprocess.run(command,shell=True, cwd=f"{ip}/scans", stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL, check=True)
     httplogger.debug('Finished {bgreen}directory brute force{rst} for {byellow}{ip}{rst} port {byellow}{port}{rst}')
 
