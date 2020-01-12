@@ -28,7 +28,7 @@ import snmprecon
 import mysqlrecon
 import smbrecon
 import pop3recon
-
+import sshrecon
 
 
 # TODO:
@@ -121,15 +121,15 @@ def service_scanner_tcp(ip,future):
         nmapParser = nmap_parser.NmapParser(f"{ip}/scans/nmap_TCP_{ip}.xml")
         # services format = {'80': 'http', '443': 'http'} 
         tcpservices = nmapParser.get_open_ports()
-        logger.info('nmap detected the services {bred}{tcpservices}{rst} on {byellow}{ip}{rst}')
+        logger.info('nmap detected the TCP services {bred}{tcpservices}{rst} on {byellow}{ip}{rst}')
         # start scanning of all the TCP ports
         for port in tcpservices:
             service_on_port = tcpservices[port]
-            if("http" in service_on_port):
+            if("http" in service_on_port or "https" in service_on_port):
                 async_jobs_http = webrecon.http_scan_all(procPool,ip,port)
                 async_jobs+=async_jobs_http
-            if("ssh" in service_on_port):
-                async_jobs_ssh = webrecon.ssh_scan_all(procPool,ip,port)
+            elif("ssh" in service_on_port):
+                async_jobs_ssh = sshrecon.ssh_scan_all(procPool,ip,port)
                 async_jobs+=async_jobs_ssh
             elif("ftp" in service_on_port ):
                 async_jobs_ftp = ftprecon.ftp_scan_all(procPool,ip,port)
@@ -140,7 +140,7 @@ def service_scanner_tcp(ip,future):
             elif("smtp" in service_on_port):
                 async_jobs_smtp = smtprecon.smtp_scan_all(procPool,ip,port)
                 async_jobs+=async_jobs_smtp
-            elif("kv-server" in service_on_port):
+            elif("kv-server" in service_on_port or "mysql" in service_on_port ):
                 async_jobs_mysql = mysqlrecon.mysql_scan_all(procPool,ip,port)
                 async_jobs+=async_jobs_mysql
             elif("pop" in service_on_port):
@@ -163,7 +163,7 @@ def service_scanner_udp(ip,future):
         nmapParser = nmap_parser.NmapParser(f"{ip}/scans/nmap_UDP_{ip}.xml")
         # services format = {'80': 'http', '443': 'http'} 
         udpservices = nmapParser.get_open_ports()
-        logger.info('nmap detected the services {bred}{udpservices}{rst} on {byellow}{ip}{rst}')
+        logger.info('nmap detected the UDP services {bred}{udpservices}{rst} on {byellow}{ip}{rst}')
          # start scanning of all the UDP ports
         for port in udpservices:
             service_on_port = udpservices[port]
