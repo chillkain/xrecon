@@ -63,14 +63,19 @@ def http_davtest(ip,port):
     httplogger.debug('Started {bgreen}davtest scan{rst} for {byellow}{ip}{rst} port {byellow}{port}{rst}')
     if (port == 443):
         command=f"davtest -url https://{ip} | tee {port}_davtest.log"
-    else:
+        subprocess.run(command,shell=True, cwd=f"{ip}/scans", stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL, check=True)
+    elif(port== 80):
         command=f"davtest -url http://{ip} | tee {port}_davtest.log"
-    subprocess.run(command,shell=True, cwd=f"{ip}/scans", stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL, check=True)
+        subprocess.run(command,shell=True, cwd=f"{ip}/scans", stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL, check=True)
+    else:
+        httplogger.warn('http on different port; execute {bgreen}davtest scan{rst} manually by redirecting to localhost')
+    
     httplogger.debug('Finished {bgreen}davtest scan{rst} for {byellow}{ip}{rst} port {byellow}{port}{rst}')
 
 def http_dir_brute(ip,port):
     httplogger.debug('Started {bgreen}directory brute force{rst} for {byellow}{ip}{rst} port {byellow}{port}{rst}')
-    command=f"gobuster dir -u http://{ip}:{port} -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -e -f -k -t 100 -x php,txt,cgi,sh,pl,py -s '200,204,301,302,307,403,500' | tee {port}_gobuster.log"
+    # command=f"gobuster dir -u http://{ip}:{port} -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -e -f -k -t 100 -x php,txt,cgi,asp,pl,aspx -s '200,204,301,302,307,500' | tee {port}_gobuster.log"
+    command=f"gobuster dir -u http://{ip}:{port} -w seclist_webbrute.txt -e -f -k -t 100 -s '200,204,301,302,307,500' | tee {port}_gobuster.log"
     subprocess.run(command,shell=True, cwd=f"{ip}/scans", stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL, check=True)
     httplogger.debug('Finished {bgreen}directory brute force{rst} for {byellow}{ip}{rst} port {byellow}{port}{rst}')
 

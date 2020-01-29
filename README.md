@@ -2,8 +2,9 @@
 
 ## install dependencies
 
-update gobuster to newest version
+following packages to newest version for correct functioning
 
 ```console
 apt-get install gobuster
+apt-get install onesixtyone
 ```

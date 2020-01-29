@@ -32,14 +32,11 @@ import sshrecon
 
 
 # TODO:
-#  fix verbosity for other files
+# add credential brute force for mssql, mysql,vnc,rdp,ssh,telnet,smb https://redteamtutorials.com/2018/10/25/hydra-brute-force-techniques/
+# fix verbosity for other files
 #  add rbac for http module
-#  add ssl for http module
-#  skip already scanned ip, unless overwrite param is set
 #  change every line of "... is done, ... workers still in the queue" to heartbeat at the bottom
-#  only scan 443 instead of 80 and 443 for http
-#  add UDP portscans
-#    DNS
+
 
 
 # initialise logger as global variable (verbosity level will be set through logger.set_verbosity())
@@ -180,7 +177,7 @@ def service_scanner_udp(ip,future):
 
 # performs nmap scan and when ready activates the different modules for the open ports
 def nmapScan_TCP(ip):
-    nmap_tcp = f"nmap -sV -Pn -T4 -p- {ip} -oA {ip}/scans/nmap_TCP_{ip}"
+    nmap_tcp = f"nmap -sV -Pn -p- {ip} -oA {ip}/scans/nmap_TCP_{ip}"
     # nmap_tcp = f"nmap -sV -Pn -T4 --top-ports=10 {ip} -oA {ip}/scans/nmap_TCP_{ip}"
     logger.info('Started {bgreen}nmap TCP scans{rst} on {byellow}{ip}{rst}' + (' with {bblue}{nmap_tcp}{rst}' if logger.get_verbosity() >= 1 else ''))
     #execute the TCP nmap command, supress the output (is synchronous execution, no new processes are made)
@@ -190,7 +187,7 @@ def nmapScan_TCP(ip):
     time.sleep(0.5) 
 
 def nmapScan_UDP(ip):
-    nmap_udp = f"nmap -sV -sU -Pn -T4 --top-ports=100 {ip} -oA {ip}/scans/nmap_UDP_{ip}"
+    nmap_udp = f"nmap -sV -sU -Pn --top-ports=100 {ip} -oA {ip}/scans/nmap_UDP_{ip}"
     logger.info('Started {bgreen}nmap UDP scans{rst} on {byellow}{ip}{rst}' + (' with {bblue}{nmap_udp}{rst}' if logger.get_verbosity() >= 1 else ''))
     #execute the UDP nmap command, supress the output (is synchronous execution, no new processes are made)
     subprocess.call(nmap_udp,shell=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
